@@ -10,16 +10,16 @@ import ComposableArchitecture
 
 struct AppView: View {
     @Bindable var store: StoreOf<AppFeature>
-
+    
     var body: some View {
         TabView(selection: $store.currentTab.sending(\.tabChanged)) {
-
+            
             ContactsView(store: store.scope(state: \.contacts, action: \.contacts))
-            .tag(AppFeature.Tab.contacts)
-            .tabItem {
-                Text("Contacts")
-            }
-
+                .tag(AppFeature.Tab.contacts)
+                .tabItem {
+                    Text("Contacts")
+                }
+            
             NavigationStack {
                 SecondTabView(store: store.scope(state: \.secondTab, action: \.secondTab))
             }
@@ -47,20 +47,20 @@ struct AppFeature {
         var secondTab = SecondTabFeature.State()
         var currentTab: Tab = .contacts
     }
-
+    
     enum Action {
         case contacts(ContactsFeature.Action)
         case secondTab(SecondTabFeature.Action)
         case tabChanged(Tab)
     }
-
+    
     enum Tab: Int, CaseIterable, Identifiable {
         case contacts
         case secondTab
-
+        
         var id: Int { self.rawValue }
     }
-
+    
     var body: some ReducerOf<Self> {
         Scope(state: \.contacts, action: \.contacts) {
             ContactsFeature()
