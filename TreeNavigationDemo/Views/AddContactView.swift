@@ -56,19 +56,28 @@ struct AddContactFeature {
         case cancelButtonTapped
         case saveButtonTapped
         case setName(String)
+        case delegate(Delegate)
+
+        enum Delegate {
+            case save(Contact)
+            case cancel
+        }
     }
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .cancelButtonTapped:
-                return .none
+                return .send(.delegate(.cancel))
 
             case .saveButtonTapped:
-                return .none
+                return .send(.delegate(.save(state.contact)))
 
             case let .setName(name):
                 state.contact.name = name
+                return .none
+
+            case .delegate:
                 return .none
             }
         }
