@@ -15,12 +15,7 @@ struct AppView: View {
         TabView(selection: $store.currentTab.sending(\.tabChanged)) {
 
             NavigationStack {
-                FirstTabView(
-                    store: store.scope(
-                        state: \.firstTab,
-                        action: \.firstTab
-                    )
-                )
+                FirstTabView(store: store.scope(state: \.firstTab, action: \.firstTab))
             }
             .tag(AppFeature.Tab.firstTab)
             .tabItem {
@@ -28,12 +23,7 @@ struct AppView: View {
             }
 
             NavigationStack {
-                SecondTabView(
-                    store: store.scope(
-                        state: \.secondTab,
-                        action: \.secondTab
-                    )
-                )
+                SecondTabView(store: store.scope(state: \.secondTab, action: \.secondTab))
             }
             .tag(AppFeature.Tab.secondTab)
             .tabItem {
@@ -82,12 +72,10 @@ struct AppFeature {
         }
         Reduce { state, action in
             switch action {
-            case .firstTab:
-                return .none
-            case .secondTab:
-                return .none
             case .tabChanged(let selectedTab):
                 state.currentTab = selectedTab
+                return .none
+            default:
                 return .none
             }
         }
