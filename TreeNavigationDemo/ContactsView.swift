@@ -85,6 +85,7 @@ struct ContactsFeature {
         var path = StackState<ContactDetailFeature.State>()
         @Presents var destination: Destination.State?
     }
+
     enum Action {
         case addButtonTapped
         case deleteButtonTapped(id: Contact.ID)
@@ -123,11 +124,20 @@ struct ContactsFeature {
             case .destination:
                 return .none
 
+            case .path(.element(id: let id, action: .delegate(.confirmDeletion))):
+                guard let detailState = state.path[id: id]
+                else { return .none }
+                state.contacts.remove(id: detailState.contact.id)
+                return .none
+
             case .path:
                 return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
+        .forEach(\.path, action: \.path) {
+            ContactDetailFeature()
+        }
     }
 }
 
