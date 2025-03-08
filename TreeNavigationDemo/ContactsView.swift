@@ -12,19 +12,22 @@ struct ContactsView: View {
     @Bindable var store: StoreOf<ContactsFeature>
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             List {
                 ForEach(store.contacts) { contact in
-                    HStack {
-                        Text(contact.name)
-                        Spacer()
-                        Button {
-                            store.send(.deleteButtonTapped(id: contact.id))
-                        } label: {
-                            Image(systemName: "trash")
-                                .foregroundColor(.red)
+                    NavigationLink(state: ContactDetailFeature.State(contact: contact)) {
+                        HStack {
+                            Text(contact.name)
+                            Spacer()
+                            Button {
+                                store.send(.deleteButtonTapped(id: contact.id))
+                            } label: {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                            }
                         }
                     }
+                    .buttonStyle(.borderless)
                 }
             }
             .navigationTitle("Contacts")
@@ -37,17 +40,19 @@ struct ContactsView: View {
                     }
                 }
             }
-            .sheet(
-                item: $store.scope(state: \.destination?.addContact, action: \.destination.addContact)
-            ) { addContactStore in
-                NavigationStack {
-                    AddContactView(store: addContactStore)
-                }
-            }
-            .alert(
-                $store.scope(state: \.destination?.alert, action: \.destination.alert)
-            )
+        } destination: { store in
+            ContactDetailView(store: store)
         }
+        .sheet(
+            item: $store.scope(state: \.destination?.addContact, action: \.destination.addContact)
+        ) { addContactStore in
+            NavigationStack {
+                AddContactView(store: addContactStore)
+            }
+        }
+        .alert(
+            $store.scope(state: \.destination?.alert, action: \.destination.alert)
+        )
     }
 }
 
@@ -77,11 +82,13 @@ struct ContactsFeature {
     @ObservableState
     struct State: Equatable {
         var contacts: IdentifiedArrayOf<Contact> = []
+        var path = StackState<ContactDetailFeature.State>()
         @Presents var destination: Destination.State?
     }
     enum Action {
         case addButtonTapped
         case deleteButtonTapped(id: Contact.ID)
+        case path(StackActionOf<ContactDetailFeature>)
         case destination(PresentationAction<Destination.Action>)
 
         @CasePathable
@@ -115,6 +122,9 @@ struct ContactsFeature {
 
             case .destination:
                 return .none
+
+            case .path:
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
@@ -132,13 +142,13 @@ extension ContactsFeature {
 extension ContactsFeature.Destination.State: Equatable {}
 
 extension AlertState where Action == ContactsFeature.Action.Alert {
-  static func deleteConfirmation(id: UUID) -> Self {
-    Self {
-      TextState("Are you sure?")
-    } actions: {
-      ButtonState(role: .destructive, action: .confirmDeletion(id: id)) {
-        TextState("Delete")
-      }
+    static func deleteConfirmation(id: UUID) -> Self {
+        Self {
+            TextState("Are you sure?")
+        } actions: {
+            ButtonState(role: .destructive, action: .confirmDeletion(id: id)) {
+                TextState("Delete")
+            }
+        }
     }
-  }
 }
