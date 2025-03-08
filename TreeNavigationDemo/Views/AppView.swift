@@ -73,7 +73,9 @@ struct AppFeature {
             case .tabChanged(let selectedTab):
                 state.currentTab = selectedTab
                 return .none
-            default:
+            case .contacts:
+                return .none
+            case .secondTab:
                 return .none
             }
         }
