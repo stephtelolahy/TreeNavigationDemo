@@ -8,22 +8,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-@Reducer
-struct FirstTabFeature {
-    @ObservableState
-    struct State: Equatable {
-    }
-
-    enum Action {
-    }
-
-    var body: some ReducerOf<Self> {
-        Reduce { state, action in
-            .none
-        }
-    }
-}
-
 struct FirstTabView: View {
     @Bindable var store: StoreOf<FirstTabFeature>
 
@@ -38,4 +22,20 @@ struct FirstTabView: View {
             FirstTabFeature()
         }
     )
+}
+
+@Reducer
+struct FirstTabFeature {
+    @ObservableState
+    struct State: Equatable {
+    }
+
+    enum Action {
+    }
+
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            .none
+        }
+    }
 }
