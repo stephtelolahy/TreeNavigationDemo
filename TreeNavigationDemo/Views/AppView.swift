@@ -14,12 +14,10 @@ struct AppView: View {
     var body: some View {
         TabView(selection: $store.currentTab.sending(\.tabChanged)) {
 
-            NavigationStack {
-                FirstTabView(store: store.scope(state: \.firstTab, action: \.firstTab))
-            }
-            .tag(AppFeature.Tab.firstTab)
+            ContactsView(store: store.scope(state: \.contacts, action: \.contacts))
+            .tag(AppFeature.Tab.contacts)
             .tabItem {
-                Text("Tab 1")
+                Text("Contacts")
             }
 
             NavigationStack {
@@ -45,27 +43,27 @@ struct AppView: View {
 struct AppFeature {
     @ObservableState
     struct State: Equatable {
-        var firstTab = FirstTabFeature.State()
+        var contacts = ContactsFeature.State()
         var secondTab = SecondTabFeature.State()
-        var currentTab: Tab = .firstTab
+        var currentTab: Tab = .contacts
     }
 
     enum Action {
-        case firstTab(FirstTabFeature.Action)
+        case contacts(ContactsFeature.Action)
         case secondTab(SecondTabFeature.Action)
         case tabChanged(Tab)
     }
 
     enum Tab: Int, CaseIterable, Identifiable {
-        case firstTab
+        case contacts
         case secondTab
 
         var id: Int { self.rawValue }
     }
 
     var body: some ReducerOf<Self> {
-        Scope(state: \.firstTab, action: \.firstTab) {
-            FirstTabFeature()
+        Scope(state: \.contacts, action: \.contacts) {
+            ContactsFeature()
         }
         Scope(state: \.secondTab, action: \.secondTab) {
             SecondTabFeature()
